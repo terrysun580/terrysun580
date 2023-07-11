@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!--开启组件扫描-->
+    <context:component-scan base-package="org.cloudnote"/>
+    <!--读取dbconfig.properties-->
+    <context:property-placeholder location="classpath:dbconfig.properties"/>
+
+    <bean id="dbcp" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="jdbcUrl" value="${jdbc.jdbcUrl}"/>
+        <property name="driverClass" value="${jdbc.driverClass}"/>
+        <property name="user" value="${jdbc.user}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--连接信息-->
+        <property name="dataSource" ref="dbcp"/>
+        <!--sql信息-->
+        <property name="mapperLocations" value="classpath:org/cloudnote/sql/*.xml"/>
+    </bean>
+
+    <bean id="mapperScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--注入mapper接口所在包-->
+        <property name="basePackage" value="org.cloudnote.dao"/>
+    </bean>
+    <!--配置一个可以执行批量的sqlsession-->
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <constructor-arg name="executorType" value="BATCH"/>
+    </bean>
+
+    <!--注解驱动-->
+    <mvc:annotation-driven/>
+    <!--开启事务-->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dbcp"></property>
+    </bean>
+    <!--指定事务作用在哪些方法上-->
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <tx:attributes>
+            <tx:method name="load*" read-only="true"/>
+            <tx:method name="find*" read-only="true"/>
+            <tx:method name="*"/>
+        </tx:attributes>
+    </tx:advice>
+    <aop:config>
+        <aop:pointcut id="servicePointcut"
+                      expression="within(org.cloudnote.service.*)"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="servicePointcut"/>
+    </aop:config>
+
+</beans>
