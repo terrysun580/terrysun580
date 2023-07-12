@@ -6,6 +6,7 @@
 	<script type="text/javascript" src="scripts/jquery-1.12.4.min.js"></script>
 	<script type="text/javascript" src="scripts/cookie_util.js"></script>
     <script  type="text/javascript" src="scripts/login.js"> </script>
+
 	<script type="text/javascript">
 		$(function(){
 			$("#regist_button").click(function(){
@@ -65,18 +66,17 @@
 								$("#warning_1 span").html(result.msg)
 								$("#warning_1").show();
 							}
-
 						},
 						error: function(){
 							alert("注册失败，请联系管理员：136xxxxxxx");
 						}
 					})
 				}
-
-
 			});
 		});
 	</script>
+
+
 </head>
 	<body>
 		<div class="global">

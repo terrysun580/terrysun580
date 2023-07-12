@@ -23,7 +23,12 @@ public class UserLoginController {
         return result;
     }
 
-
+    @ResponseBody
+    @RequestMapping("change.do")
+    public NoteResult changePassword(String userId,String oldPassword,String newPassword){
+        NoteResult result = userService.changePassword(userId,oldPassword,newPassword);
+        return result;
+    }
 
     //spring通过方法处理请求
     //http://localhost:80/user/login.do

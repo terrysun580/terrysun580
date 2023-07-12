@@ -67,5 +67,27 @@ public class UserServiceImpl implements UserService {
         return result;
     }
 
+    @Override
+    public NoteResult changePassword(String userId,String oldPassword,String newPassword) {
+        NoteResult result = new NoteResult();
+        User user = new User();
+        NoteUtil noteUtil = new NoteUtil();
+        User olduser = userDao.findById(userId);
+        if(!noteUtil.md5(oldPassword).equals(olduser.getCn_user_password())){
+            result.setStatus(1);
+            result.setMsg("原密码错误");
+            return result;
+        }
+
+        user.setCn_user_password(noteUtil.md5(newPassword));
+        user.setCn_user_id(userId);
+        //使用save方法将user存储到数据库
+        userDao.changePassword(user);
+
+        result.setStatus(0);
+        result.setMsg("密码修改成功,请重新登录");
+        return result;
+    }
+
 
 }
